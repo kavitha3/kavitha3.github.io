@@ -1,44 +1,109 @@
 <!DOCTYPE html>
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> circle {fill: green; stroke: black;} </style>
+<style> 
+
+circle {fill: lightgrey; stroke: black;} 
+
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 60px;                  
+  height: 28px;                 
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
+
+</style>
+
+
 <body onload='init()'>
-<svg width=300 height=300>
-</svg>
+
+
 <script>
 async function init() {
-var data = await d3.csv('cars2017.csv');
-var x = d3.scaleLog().domain([10,150]).range([0,200]);
-var y = d3.scaleLog().domain([10,150]).range([200,0]);
+
+
+var data = await d3.csv('https://flunky.github.io/cars2017.csv');
+var x = d3.scaleLog().domain([10,150]).range([0,400]);
+var y = d3.scaleLog().domain([10,150]).range([400,0]);
+
+d3.select('body')
+.append('h2')
+.text("Fuel Efficiency - All Car Types")
+.style('text-align','center')
+.style('font-family','Courier')
+.style('color', 'green');
+
+
+d3.select('body')
+.append('svg')
+.attr('width', 1200)
+.attr('height', 500);
+
+//set up tooltip
+var div = d3.select("body")
+.append("div")	
+.attr("class", "tooltip")				
+.style("opacity", 0);
 
 d3.select('svg')
 .append('g')
-.attr('transform','translate(50,50)')
+.attr('transform','translate(400,50)')
 .selectAll('circle')
 .data(data)
 .enter()
 .append('circle')
 .attr('cx',function(d){return x(d.AverageCityMPG);})
 .attr('cy',function(d){return y(d.AverageHighwayMPG);})
-.attr('r',1)
-.transition().delay(3000)
-.attr('r',function(d){return d.EngineCylinders - 2 + 4;});
+.attr('r',function(d){return d.EngineCylinders - 2 + 4;})
+.on('mouseover', function(d)
+{
+	div.tranistion()
+	.duration(500)
+	.style("opacity", .9);
+	div.html(d.Make)
+	 .style("left", (d3.event.pageX) + "px")		
+     .style("top", (d3.event.pageY - 28) + "px");	
+})
+.on("mouseout", function(d) {		
+             div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
 
 
 d3.select('svg')
 .append('g')
-.attr('transform','translate(50,50)')
+.attr('transform','translate(400,50)')
 .call(d3.axisLeft(y).tickValues([10,20,50,100]).tickFormat(d3.format(".0s")));
 
+
 d3.select('svg')
 .append('g')
-.attr('transform','translate(50,250)')
+.attr('transform','translate(400,450)')
 .call(d3.axisBottom(x).tickValues([10,20,50,100]).tickFormat(d3.format(".0s")));
 
+//add x axis lables
+d3.select('svg')
+.append('text')
+.attr('x', 600)
+.attr('y', 485)
+.style('text-anchor','middle')
+.text('Miles per Gallon - City');
 
-  
-  
-  }
+//add y axis labels
+d3.select('svg')
+.append('text')
+.attr('transform', 'translate(350,250)rotate(-90)')
+.style('text-anchor','middle')
+.text('Miles per Gallon - Highway');
+
+}
 </script>
 </body>
 </html>
