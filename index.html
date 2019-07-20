@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
+<script src="d3-scale-chromatic.v0.0.js"></script>
 <style> 
 
 circle {fill: lightgrey; stroke: black;} 
@@ -111,7 +112,7 @@ var svg = d3.select('body')
 var tooltip = d3.select("body")
   .append("div")
   .style("position", "absolute")
-  .style('background','lightsteelblue')
+  .style('background','white')
   .style("z-index", "10")
   .style("visibility", "hidden")
 
@@ -119,7 +120,7 @@ var tooltip = d3.select("body")
 
 //set up color scheme
 var cSpec = function(d){return d.Fuel;};
-var color = d3.scaleOrdinal(d3.schemeCategory10);
+var color = d3.scaleOrdinal(d3.schemeDark2);
 
 //create plot
 var chartVis = d3.select('#chartArea')
@@ -137,7 +138,7 @@ var chartVis = d3.select('#chartArea')
   (tooltip.style("visibility", "visible")
                  .style("left", (d3.event.pageX) + "px")    
                  .style("top", (d3.event.pageY - 28) + "px")
-                 .style("opacity", .5)
+                 .style("opacity", 1)
                  .style("display", 'block')
                  .html("Hwy: "+ d.AverageHighwayMPG +"<br/>" + "City:" + d.AverageCityMPG)
 
@@ -236,6 +237,11 @@ d3.select('#chartArea')
       .transition().delay(4000).duration(1000)
       .style("text-anchor", "end")
       .text(function(d) { return d;});
+
+
+
+
+
 
 
 }
