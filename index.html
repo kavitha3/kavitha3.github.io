@@ -21,17 +21,89 @@ var x = d3.scaleLog().domain([10,150]).range([0,400]);
 var y = d3.scaleLog().domain([10,150]).range([400,0]);
 var lscale = d3.scaleLinear().domain([0,12]).range([0,90]);
 
-//heading
-d3.select('body')
+
+
+var header = d3.select('body')
 .append('h2')
-.text("Fuel Efficiency - All Car Types")
+.text("Fuel Efficiency - All Cars")
 .style('text-align','center')
 .style('font-family','Courier')
 .style('color', 'steelgrey');
 
-//set up SVG
-d3.select('body')
+header.transition().delay(3000).duration(3000).text("Fuel Efficiency - All Cars by Fuel Type")
+header.transition().delay(8000).duration(3000).text("Fuel Efficiency - Select Your Car")
+
+
+
+var drop_down = d3.select("body")
+    .append("select")
+    .attr("id", "makeSelector")
+    .selectAll("option")
+    .data(d3.map(data, function(d){return d.Make;}).keys())
+    .enter().append("option")
+    .transition().delay(8000)
+    .text(function(d) { return d; })
+    .attr("value", function (d) {
+      return d;
+    });
+  
+
+
+//Update Chart Function
+function update(selection){
+var dataSelected = data.filter(function(d){return d.Make==selection});
+d3.select('#chart')
+        .selectAll('circle')
+        .transition()
+        .duration(1000)
+        .attr('r',0);
+
+d3.select('#chart')
+.append('g')
+.selectAll('circle')
+.data(dataSelected)
+.enter()
+.append('circle')
+.attr('cx',function(d){return x(d.AverageCityMPG);})
+.attr('cy',function(d){return y(d.AverageHighwayMPG);})
+.style('fill',function(d){return color(cSpec(d))})
+.on("mouseover", function(d){
+  (tooltip.style("visibility", "visible")
+                 .style("left", (d3.event.pageX) + "px")    
+                 .style("top", (d3.event.pageY - 28) + "px")
+                 .style("opacity", .5)
+                 .style("display", 'block')
+                 .html("Hwy: "+ d.AverageHighwayMPG +"<br/>" + "City:" + d.AverageCityMPG)
+
+                 )
+                d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 13;})
+
+
+                  })
+
+.on("mouseout", function(d){
+    tooltip.style("visibility", "hidden")
+            .style("display", "none");
+
+d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 7;})
+}
+)
+.transition().duration(1000)
+.attr('r',function(d){return d.EngineCylinders - 2 + 7;})
+
+}
+
+//update chart
+d3.select('#makeSelector').on('change',function(d){
+    var selection = d3.select(this).property('value')
+    update(selection)
+
+})
+
+
+var svg = d3.select('body')
 .append('svg')
+.attr('id','chartArea')
 .attr('width', 1200)
 .attr('height', 500);
 
@@ -42,17 +114,17 @@ var tooltip = d3.select("body")
   .style('background','lightsteelblue')
   .style("z-index", "10")
   .style("visibility", "hidden")
-  .text("a simple tooltip");
+
 
 
 //set up color scheme
 var cSpec = function(d){return d.Fuel;};
 var color = d3.scaleOrdinal(d3.schemeCategory10);
-  
 
-//scatterplot
-d3.select('svg')
+//create plot
+var chartVis = d3.select('#chartArea')
 .append('g')
+.attr('id','chart')
 .attr('transform','translate(400,50)')
 .selectAll('circle')
 .data(data)
@@ -61,42 +133,45 @@ d3.select('svg')
 .attr('cx',function(d){return x(d.AverageCityMPG);})
 .attr('cy',function(d){return y(d.AverageHighwayMPG);})
 .attr('r',function(d){return d.EngineCylinders - 2 + 7;})
-.style('fill',function(d){return color(cSpec(d))})
 .on("mouseover", function(d){
   (tooltip.style("visibility", "visible")
                  .style("left", (d3.event.pageX) + "px")    
                  .style("top", (d3.event.pageY - 28) + "px")
                  .style("opacity", .5)
+                 .style("display", 'block')
                  .html("Hwy: "+ d.AverageHighwayMPG +"<br/>" + "City:" + d.AverageCityMPG)
 
                  )
-d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 13;})
+                d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 13;})
 
 
-})
+                  })
 
-  .on("mouseout", function(d){
-    tooltip.style("visibility", "hidden");
+.on("mouseout", function(d){
+    tooltip.style("visibility", "hidden")
+            .style("display", "none");
 d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 7;})
 }
-);
+)
+.transition().delay(3000).duration(3000)
+.style('fill',function(d){return color(cSpec(d))})
 
-//add axis
-d3.select('svg')
+
+
+
+d3.select('#chartArea')
 .append('g')
 .attr('transform','translate(400,50)')
 .call(d3.axisLeft(y).tickValues([10,20,50,100]).tickFormat(d3.format(".0s")));
 
-d3.select('svg')
+
+d3.select('#chartArea')
 .append('g')
 .attr('transform','translate(400,450)')
 .call(d3.axisBottom(x).tickValues([10,20,50,100]).tickFormat(d3.format(".0s")));
 
-
-
-
 //add x axis lables
-d3.select('svg')
+d3.select('#chartArea')
 .append('text')
 .attr('x', 600)
 .attr('y', 485)
@@ -104,14 +179,42 @@ d3.select('svg')
 .text('Miles per Gallon - City');
 
 //add y axis labels
-d3.select('svg')
+d3.select('#chartArea')
 .append('text')
 .attr('transform', 'translate(350,250)rotate(-90)')
 .style('text-anchor','middle')
 .text('Miles per Gallon - Highway');
 
+//add scale and circles for cylinder size
+d3.select('#chartArea')
+.append('g')
+.attr('transform','translate(910,290)')
+.call(d3.axisBottom(lscale).tickValues([0,12]));
+
+d3.select('#chartArea')
+.append('circle')
+.attr('cx',910)
+.attr('cy',278)
+.attr('r',5)
+.style('fill','grey');
+
+d3.select('#chartArea')
+.append('circle')
+.attr('cx',1000)
+.attr('cy',273)
+.attr('r',10)
+.style('fill','grey');
+
+//add lable
+d3.select('#chartArea')
+.append('text')
+.attr('x', 960)
+.attr('y', 320)
+.style('text-anchor','middle')
+.text('Engine Cylinders');
+
 // draw legend
-  var legend = d3.select('svg')
+  var legend = d3.select('#chartArea')
        .selectAll(".legend")
       .data(color.domain())
     .enter().append("g")
@@ -121,46 +224,18 @@ d3.select('svg')
   legend.append("circle")
       .attr("cx", 1000)
       .attr('cy',370)
+      .transition().delay(4000).duration(1000)
       .attr('r', 7)
       .style("fill", color);
    // draw legend text
-  legend.append("text")
+   legend
+      .append("text")
       .attr("x", 985)
       .attr("y", 370)
       .attr("dy", ".35em")
+      .transition().delay(4000).duration(1000)
       .style("text-anchor", "end")
-      .text(function(d) { return d;})
-
-
-  //add scale and circles for cylinder size
-d3.select('svg')
-.append('g')
-.attr('transform','translate(910,290)')
-.call(d3.axisBottom(lscale).tickValues([0,12]).tickFormat(d3.format(".0s")));
-
-d3.select('svg')
-.append('circle')
-.attr('cx',910)
-.attr('cy',278)
-.attr('r',5)
-.style('fill','grey');
-
-d3.select('svg')
-.append('circle')
-.attr('cx',1000)
-.attr('cy',273)
-.attr('r',10)
-.style('fill','grey');
-
-//add lable
-d3.select('svg')
-.append('text')
-.attr('x', 960)
-.attr('y', 320)
-.style('text-anchor','middle')
-.text('Engine Cylinders');
-
-
+      .text(function(d) { return d;});
 
 
 }
