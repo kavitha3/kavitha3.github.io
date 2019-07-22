@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<script src="d3-scale-chromatic.v0.0.js"></script>
 <style> 
 
 circle {fill: lightgrey; stroke: black;} 
@@ -29,10 +28,10 @@ var header = d3.select('body')
 .text("Fuel Efficiency - All Cars")
 .style('text-align','center')
 .style('font-family','Courier')
-.style('color', 'steelgrey');
+.style('color', 'black');
 
-header.transition().delay(3000).duration(3000).text("Fuel Efficiency - All Cars by Fuel Type")
-header.transition().delay(8000).duration(3000).text("Fuel Efficiency - Select Your Car")
+header.transition().delay(11000).duration(1000).text("Fuel Efficiency - All Cars by Fuel Type")
+header.transition().delay(18000).duration(10000).text("Fuel Efficiency - Select Your Car")
 
 
 
@@ -42,7 +41,7 @@ var drop_down = d3.select("body")
     .selectAll("option")
     .data(d3.map(data, function(d){return d.Make;}).keys())
     .enter().append("option")
-    .transition().delay(8000)
+    .transition().delay(17500)
     .text(function(d) { return d; })
     .attr("value", function (d) {
       return d;
@@ -72,7 +71,7 @@ d3.select('#chart')
   (tooltip.style("visibility", "visible")
                  .style("left", (d3.event.pageX) + "px")    
                  .style("top", (d3.event.pageY - 28) + "px")
-                 .style("opacity", .5)
+                 .style("opacity", 1)
                  .style("display", 'block')
                  .html("Hwy: "+ d.AverageHighwayMPG +"<br/>" + "City:" + d.AverageCityMPG)
 
@@ -133,7 +132,6 @@ var chartVis = d3.select('#chartArea')
 .append('circle')
 .attr('cx',function(d){return x(d.AverageCityMPG);})
 .attr('cy',function(d){return y(d.AverageHighwayMPG);})
-.attr('r',function(d){return d.EngineCylinders - 2 + 7;})
 .on("mouseover", function(d){
   (tooltip.style("visibility", "visible")
                  .style("left", (d3.event.pageX) + "px")    
@@ -154,6 +152,9 @@ var chartVis = d3.select('#chartArea')
 d3.select(this).attr('r',function(d){return d.EngineCylinders - 2 + 7;})
 }
 )
+.attr('r',4)
+.transition().delay(3000).duration(3000)
+.attr('r',function(d){return d.EngineCylinders - 2 + 7;})
 .transition().delay(3000).duration(3000)
 .style('fill',function(d){return color(cSpec(d))})
 
@@ -190,27 +191,31 @@ d3.select('#chartArea')
 d3.select('#chartArea')
 .append('g')
 .attr('transform','translate(910,290)')
+.transition().delay(5500).duration(1000)
 .call(d3.axisBottom(lscale).tickValues([0,12]));
 
 d3.select('#chartArea')
 .append('circle')
 .attr('cx',910)
 .attr('cy',278)
+.transition().delay(5500).duration(1000)
 .attr('r',5)
-.style('fill','grey');
+.style('fill','lightgrey');
 
 d3.select('#chartArea')
 .append('circle')
 .attr('cx',1000)
 .attr('cy',273)
+.transition().delay(5500).duration(1000)
 .attr('r',10)
-.style('fill','grey');
+.style('fill','lightgrey');
 
 //add lable
 d3.select('#chartArea')
 .append('text')
 .attr('x', 960)
 .attr('y', 320)
+.transition().delay(5500).duration(1000)
 .style('text-anchor','middle')
 .text('Engine Cylinders');
 
@@ -225,7 +230,7 @@ d3.select('#chartArea')
   legend.append("circle")
       .attr("cx", 1000)
       .attr('cy',370)
-      .transition().delay(4000).duration(1000)
+      .transition().delay(11000).duration(1000)
       .attr('r', 7)
       .style("fill", color);
    // draw legend text
@@ -234,7 +239,7 @@ d3.select('#chartArea')
       .attr("x", 985)
       .attr("y", 370)
       .attr("dy", ".35em")
-      .transition().delay(4000).duration(1000)
+      .transition().delay(11000).duration(1000)
       .style("text-anchor", "end")
       .text(function(d) { return d;});
 
